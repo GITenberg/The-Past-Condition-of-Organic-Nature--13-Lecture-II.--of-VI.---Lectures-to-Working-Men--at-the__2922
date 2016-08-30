@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: tXEUWP0NMprjmIHF+ZQTraZB96t81OGOWNVxSejtMAiu5Lq2l/CaibdRgz9yhkfNipUH+sHm3Z5++RuxnornkrT0YGB0nt7PqfJX6EuXsX2hyHid3AZ4Ln9f3tmH3j3KaMKmjDQ1yKTShj5oKmCmTWaCXRewueD8DwotjFRPOh8IzuokBAPKWfyt2P0ag9p3cGC1Ncbu6L6QcN1KatzA8ZMMTnMXLWgrgYVrz5tgTZFNYi87SdJ32hLuOuK+sWOGr0pbo7MnosCqy/nUGFkZdEXO0RUUUxsjgNvfShEn+nN8Iiv7RfihekHI80M4oc71qcTtczOeu4NG+x7vkrDdb09EkSuIrclrLNmMCGGaoJ8g4ZCw2Yf+STD/YkLsK22SaWv25NjeXW9gg7c9wYLz3+MeO5Yz/26lOfkbm+hbDOXnaw92j2Wwjo6jkCwF0BBgjqPI1lB6jZCAJOMcAojzYgeHhl/vvWJHYVaEv+sxfut9oB42dFhARrlyQvltcCjj1AZfxiU+cSazmSE6cRXTi+z8I0+WrsrgCvbYdh4tWo0iSrQPE1BrAHrSmLJ5AN+guYk/S6pu5sPBx6tRB01AAekuUxopvref3cIovpc0ii4Hj4CKCGqkESZZxuQAA/nqEpySJ2FUTKJjIM9QuwZkdQLhj8o6uiNp593gev62sZM=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Past-Condition-of-Organic-Nature--13-Lecture-II.--of-VI.---Lectures-to-Working-Men--at-the__2922
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
